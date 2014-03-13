@@ -94,9 +94,16 @@ test d'intégration.
 
 ## Premier scénario : création d'utilisateur
 
-voir le fichier [./test/integration/user_creation.js]
+voir le (fichier)[./test/integration/user_creation.js]
 
+Pour écrire ce scénario, nous avons fixé les éléments HTML manipulés durant le
+scénario, en particulier :
 
+* le lien permettant de demander le formulaire de création
+* l'identifiant du formulaire
+
+L'idée est de permettre de repérer l'élément, pas de forcer sa description
+complète. 
 
 
 
