@@ -1,0 +1,7 @@
+ul
+  each user in users
+    li
+      a(href='/people/'+user.login)= user.login
+      = user.lastname + ' ' + user.firstname
+
+a(href="/people/new") Nouvelle Personne

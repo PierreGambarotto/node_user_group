@@ -1,0 +1,31 @@
+{
+  "name": "node_user_group",
+  "version": "0.0.0",
+  "description": "gestion user/group",
+  "main": "app.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha -R spec test/controllers/* test/models/*",
+    "integration_test": "./script/integration_test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/PierreGambarotto/node_user_group.git"
+  },
+  "author": "Pierre Gambarotto <pierre.gambarotto@enseeiht.fr>",
+  "license": "GLPv3",
+  "bugs": {
+    "url": "https://github.com/PierreGambarotto/node_user_group/issues"
+  },
+  "homepage": "https://github.com/PierreGambarotto/node_user_group",
+  "devDependencies": {
+    "casperjs": "^1.1.0-beta3",
+    "mocha": "^1.17.1",
+    "sinon": "^1.9.0",
+    "should": "^3.1.3"
+  },
+  "dependencies": {
+    "express": "^3.5.0",
+    "jade": "^1.3.0",
+    "mongoose": "^3.8.8"
+  }
+}

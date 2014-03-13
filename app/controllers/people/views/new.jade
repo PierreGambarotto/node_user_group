@@ -1,0 +1,12 @@
+form(action="/people", method="post")#new_user
+  label(for="user[lastname]") Nom
+  input(name="user[lastname]", value=user.lastname, type="text")
+  label(for="user[firstname]") Prénom
+  input(name="user[firstname]", value=user.firstname, type="text")
+  label(for="user[login]") Identifiant de connexion
+  input(name="user[login]", value=user.login, type="text")
+  label(for="user[password]") Mot de passe
+  input(name="user[password]", type="password")
+  input(type="submit", value="Créer utilisateur")
+
+
