@@ -19,15 +19,20 @@ l'application :
 * URL permettant d'obtenir cette vue
 * URL générées par la manipulation de cette vue (lien `<a href="…">`, validation
 de formulaire, requête AJAX)
+* éléments HTML significatif de la vue
 
 Les URLs permettent de dégager la description du routage de l'application.
 (association requête HTTP <-> action d'un contrôleur).
+
+Les éléments HTML permettent de spécifier le contenu du template devant
+engendrer la vue correspondante.
 
 Les vues concernant la création et l'édition d'une ressource permettent de
 décrire les modèles qui seront utilisés.
 
 Pour une application permettant de gérer le CRUD d'un modèle, nous obtenons de
-manière systématique les vues et le routage suivant :
+manière systématique les vues et le routage ci-dessous. À vous d'adapter pour
+une ressource différente.
 
 ### `GET /people`
 
@@ -39,11 +44,31 @@ de création d'un nouvel utilisateur.
 
 ### `GET /people/new`
 
-### `GET /people/:id`
+Un formulaire (`id=new_user`) permet de renseigner :
 
+```javascript
+{ 
+  user: {
+    lastname: '…',
+    firstname: '…',
+    login: '…',
+    password: '…'
+  }
+}
+```
+La validation du formulaire engendre l'envoi des données récoltées à `POST
+/people`
+
+### `GET /people/:id`
 ### `GET /people/:id/edit`
 
 ### `POST /people`
+
+À partir du formulaire créé dans `GET /people/new`, on essaye de créer un nouvel
+utilisateur. Si cela réussit, on redirige vers l'affichage de la liste, sinon on 
+réaffiche le formulaire, éventuellement avec les données déjà rentrées,
+éventuellement en signalant la raison de l'erreur.
+
 
 ### `DELETE /people/:id`
 
@@ -52,19 +77,26 @@ de création d'un nouvel utilisateur.
 
 ## Le modèle
 
+Par l'étude de la vue de création, on définit le modèle comme devant comporter
+les champs `lastname`, `firstname`, `login` et `password`.
+On compte se servir du champ `login` comme identifiant unique dans les URL, il
+faut donc s'assurer que 2 utilisateurs ne peuvent pas avoir le même.
+
 ## Création du projet
 
 npm init pour créer le fichier `package.json`
 
 ## Installation de casperjs
 
+Nous utilisons [CasperJS](http://casperjs.org/) pour décrire les scénarios
+d'utilisation de notre application, ce qui permet d'écrire en meme temps des
+test d'intégration.
+
 ## Premier scénario : création d'utilisateur
 
-description du scénario en français
-
-description du scénario avec dalek.js
+voir le fichier [./test/integration/user_creation.js]
 
 
-mise en place de dalek.js
+
 
 
