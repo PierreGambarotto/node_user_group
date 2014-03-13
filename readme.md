@@ -92,6 +92,11 @@ Nous utilisons [CasperJS](http://casperjs.org/) pour décrire les scénarios
 d'utilisation de notre application, ce qui permet d'écrire en meme temps des
 test d'intégration.
 
+CasperJS dépend de phantomJS, un navigateur headless. Il faut installer les 2
+exécutables au niveau système, par exemple avec:
+
+    sudo npm install -g phantomjs casperjs
+
 ## Premier scénario : création d'utilisateur
 
 voir le [fichier](./test/integration/user_creation.js)
@@ -105,3 +110,13 @@ scénario, en particulier :
 L'idée est de permettre de repérer l'élément, pas de forcer sa description
 complète. On utilise donc de préférence plutôt des ids, des classes css ou des éléments
 de texte que des tag HTML.
+
+L'écriture du test d'intégration implique que l'on dispose à chaque étape :
+* des URLs manipulés
+* des éléments HTML manipulés dans le navigateur Phantomjs par CasperJS lors du déroulement du
+scénario
+
+Ce qui veut dire que l'on a déjà spécifié l'application, ce qui est décrit pour
+les vues concernées dans la première partie.
+
+
