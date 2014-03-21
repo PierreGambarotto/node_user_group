@@ -121,10 +121,43 @@ les vues concernées dans la première partie.
 
 ## Tester la partie API de l'application
 
-utilisation de supertest
+Pour tester la partie API de l'application, nous allons utiliser [Supertest](https://github.com/visionmedia/supertest).
 
-on spécifie la partie de l'API permettant de créer un utilisateur.
+Un des avantages est que l'on pourra utiliser l'API pour gérer facilement des utilisateurs pour les tests d'intégration écrits avec CasperJS.
 
-Un des avantages est que l'on pourra utiliser l'API pour créer facilement des utilisateurs pour les tests d'intégration écrits avec CasperJS.
+voir [test/integration/user_creation_api.js](./test/integration/user_creation_api.js)
 
-voir (./test/integration/user_creation_api.js)[test/integration/user_creation_api.js)
+## Express: comment gérer 2 formats: json/html ?
+
+Rappel: le client HTTP fixe les types de contenu acceptable dans l'entête `Accept`.
+
+Pour s'adapter au type de contenu voulu par le client, il suffit donc d'exploiter cet entête.
+
+Express.js livre plusieurs procédés plus faciles à utiliser que l'exploitation brute de l'entête.
+
+Par ordre de sophistication :
+
+1. [`req.accepted`](http://expressjs.com/api.html#req.accepted) renvoie un
+tableau des types acceptés par le client, ordonné par préférence.  
+2. [`req.accepts('type')`](http://expressjs.com/api.html#req.accepts) vérifie que
+le type passé en argument est acceptable par le client.
+3. [`res.formtat(object)`](http://expressjs.com/api.html#res.format) permet de
+spécifier une fonction callback à appeler pour gérer un type:
+
+```javascript
+res.format({
+  'text/plain': function(){
+    res.send('hey');
+  },
+  
+  'text/html': function(){
+    res.send('hey');
+  },
+  
+  'application/json': function(){
+    res.send({ message: 'hey' });
+  }
+});
+```
+
+
