@@ -119,4 +119,12 @@ scénario
 Ce qui veut dire que l'on a déjà spécifié l'application, ce qui est décrit pour
 les vues concernées dans la première partie.
 
+## Tester la partie API de l'application
 
+utilisation de supertest
+
+on spécifie la partie de l'API permettant de créer un utilisateur.
+
+Un des avantages est que l'on pourra utiliser l'API pour créer facilement des utilisateurs pour les tests d'intégration écrits avec CasperJS.
+
+voir (./test/integration/user_creation_api.js)[test/integration/user_creation_api.js)

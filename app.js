@@ -1,5 +1,6 @@
 var express = require('express')
 var app = express()
+module.exports = app
 var fs = require('fs')
 var path = require('path')
 var util = require('util')
