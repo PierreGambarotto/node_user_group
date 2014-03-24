@@ -17,9 +17,14 @@ var req, res;
 beforeEach(function(){
   req = {}
   res = {
+    format: function(obj){
+      obj.html(req, this)
+    },
     redirect: function(){},
     render: function(){}
   }
+  req.res = res
+  res.req = req
 })
 describe('people controller', function(){
   describe('#index', function(){
@@ -35,7 +40,7 @@ describe('people controller', function(){
       var stub = sinon.stub(User, 'find')
       var users = [{login: 'user1'}, {login: 'user2'}]
       stub.callsArgWith(0, undefined, users)
-      controller.index.should_render('index',{users: users})
+      controller.index.should_render('index',{users: users}, req)
     })
   })
   describe('#new', function(){

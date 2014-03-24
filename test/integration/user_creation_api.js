@@ -137,13 +137,15 @@ describe('user JSON API ', function() {
           login: 'login',
           password: 'pass'
         };
-        User.create(existing_user);
-        request
-          .post('/people')
-          .set('Accept', 'application/json')
-          .set('Content-Type', 'application/json')
-          .send({user: existing_user}).expect(303)
-          .expect('Location', "/people/" + existing_user.login, done);
+        User.create(existing_user, function(err,user){
+          if (err) done(err)
+          request
+            .post('/people')
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .send({user: existing_user}).expect(303)
+            .expect('Location', "/people/" + existing_user.login, done);
+        })
       });
     });
   });

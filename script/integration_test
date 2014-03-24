@@ -6,5 +6,5 @@ exec 6<&-
 NODE_ENV=test node ./script/clean_db.js
 NODE_ENV=test node ./app.js &
 sleep 1
-casperjs test test/integration/*
+casperjs test test/integration/ui/*
 kill -9 $!
