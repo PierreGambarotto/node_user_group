@@ -7,6 +7,7 @@ app.models = {}
 app.models.User = function(){}
 app.models.User.create = function(){}
 app.models.User.find = function(){}
+app.models.User.findOne = function(){}
 
 var User = app.models.User
 var controller = require('../../app/controllers/people/controller')(app)
@@ -16,12 +17,14 @@ var req, res;
 
 beforeEach(function(){
   req = {}
+  req.params = {}
   res = {
     format: function(obj){
       obj.html(req, this)
     },
     redirect: function(){},
-    render: function(){}
+    render: function(){},
+    send: function(){}
   }
   req.res = res
   res.req = req
@@ -41,19 +44,51 @@ describe('people controller', function(){
       var users = [{login: 'user1'}, {login: 'user2'}]
       stub.callsArgWith(0, undefined, users)
       controller.index.should_render('index',{users: users}, req)
+      stub.restore()
     })
   })
-  describe('#index', function(){
+  describe('#show', function(){
     beforeEach(function(){
-      req.params = { login: 'bob' }
+      req.params.login = 'bob'
     })
-    it('searches the user whose login is given in params')
-    it('only ask for login, firstname and lastname')
+    it('searches the user whose login is given in params', function(){
+      var mock = sinon.mock(User)
+      mock.expects('findOne').once().withArgs({ login: req.params.login})
+      controller.show(req, res)
+      mock.verify()
+      mock.restore()
+    })
+    it('only ask for login, firstname and lastname', function(){
+      var mock = sinon.mock(User)
+      mock.expects('findOne').once().withArgs({ login: req.params.login}, 'login firstname lastname')
+      controller.show(req, res)
+      mock.verify()
+      mock.restore()
+
+    })
     context('when the user is found', function(){
-      it('renders the show view with the user')
+      it('renders the show view with the user', function(){
+        var stub = sinon.stub(User, 'findOne')
+        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
+        stub.callsArgWith(2, undefined, user)
+        controller.show.should_render('show', {user: user}, req)
+        stub.restore()
+      })
     })
     context('when the user in not found', function(){
-      it('returns a 404 error')
+      it('returns a 404 error', function(){
+        var stub = sinon.stub(User, 'findOne')
+        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
+        stub.callsArgWith(2, undefined, undefined)
+        var mock = sinon.mock(res)
+        mock.expects('send').once().withExactArgs(404)
+        controller.show(req, res)
+        mock.verify()
+        mock.restore()
+        stub.restore()
+        
+
+      })
     })
 
   })

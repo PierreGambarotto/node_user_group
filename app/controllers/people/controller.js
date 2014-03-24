@@ -22,7 +22,14 @@ module.exports = function(parent) {
 
     // GET /people/:login
     show: function(req, res) {
-      res.send(200)
+      User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
+        if (user) {
+          res.render('show', {user: user})
+        } else {
+          res.send(404)
+        }
+
+      })
     },
 
     // GET /people/new
