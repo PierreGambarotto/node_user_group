@@ -24,9 +24,16 @@ module.exports = function(parent) {
     show: function(req, res) {
       User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
         if (user) {
-          res.render('show', {user: user})
+          res.format({
+            html: function(){
+              res.render('show', {user: user})
+            },
+            json: function(){
+              res.json(user)
+            }
+          })
         } else {
-          res.send(404)
+          res.send(404, "User not found")
         }
 
       })

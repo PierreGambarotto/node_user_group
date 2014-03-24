@@ -160,7 +160,9 @@ describe('user JSON API ', function() {
           password: 'pass'
         };
         User.create(user);
-        request.del("/people/" + user.login).expect(200).end(function(err, res) {
+        request.del("/people/" + user.login)
+          .set('Accept', 'application/json')
+          .expect(200).end(function(err, res) {
           if (err) {
             done(err);
           }
@@ -176,7 +178,9 @@ describe('user JSON API ', function() {
     });
     context('when the user doe not exist', function() {
       it('returns a 404 User not found', function(done) {
-        request.del('/people/missing').expect(404, 'User not found', done);
+        request.del('/people/missing')
+          .set('Accept', 'application/json')
+          .expect(404, 'User not found', done);
       });
     });
   });
@@ -191,7 +195,9 @@ describe('user JSON API ', function() {
           password: 'pass'
         };
         User.create(user);
-        request.get("/people/" + user.login).expect(200).end(function(err, res) {
+        request.get("/people/" + user.login)
+          .set('Accept', 'application/json')
+          .expect(200).end(function(err, res) {
           if (err) {
             done(err);
           }
@@ -202,7 +208,10 @@ describe('user JSON API ', function() {
     });
     context('when the user doe not exist', function() {
       it('returns a 404 User not found', function(done) {
-        request.get('/people/missing').expect(404, 'User not found', done);
+        request
+          .get('/people/missing')
+          .set('Accept', 'application/json')
+          .expect(404, 'User not found', done);
       });
     });
   });
