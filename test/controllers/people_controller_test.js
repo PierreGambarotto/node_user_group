@@ -43,6 +43,20 @@ describe('people controller', function(){
       controller.index.should_render('index',{users: users}, req)
     })
   })
+  describe('#index', function(){
+    beforeEach(function(){
+      req.params = { login: 'bob' }
+    })
+    it('searches the user whose login is given in params')
+    it('only ask for login, firstname and lastname')
+    context('when the user is found', function(){
+      it('renders the show view with the user')
+    })
+    context('when the user in not found', function(){
+      it('returns a 404 error')
+    })
+
+  })
   describe('#new', function(){
     it('renders the new template with a blank user', function(){
       controller.new.should_render('new', {user:{}})

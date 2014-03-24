@@ -20,6 +20,11 @@ module.exports = function(parent) {
       })
     },
 
+    // GET /people/:login
+    show: function(req, res) {
+      res.send(200)
+    },
+
     // GET /people/new
     'new': function(req, res){
       res.render('new', { user: new User()})

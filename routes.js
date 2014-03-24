@@ -3,6 +3,7 @@ module.exports = function(app){
   route('get', '/people', 'people', 'index')
   route('get', '/people/new', 'people', 'new')
   route('post', '/people', 'people', 'create')
+  route('get', '/people/:login', 'people', 'show')
 
 
 
