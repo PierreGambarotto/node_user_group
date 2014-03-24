@@ -3,8 +3,16 @@
 exec 6<>/dev/tcp/127.0.0.1/3001 && echo "server already running on port 3001, exit ..." && exit 1
 exec 6>&-
 exec 6<&-
-NODE_ENV=test node ./script/clean_db.js
 NODE_ENV=test node ./app.js &
 sleep 1
-casperjs test test/integration/ui/*
+if [ $# -eq 0 ]; then
+  tests=`ls test/integration/ui/*`
+else
+  tests=$@
+fi
+for test in $tests; do
+  NODE_ENV=test node ./script/clean_db.js
+  NODE_ENV=test node ./script/fixture.js
+  casperjs test $test
+done
 kill -9 $!
