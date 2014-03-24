@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'test';
-var app = require('../../app');
+var app = require('../../../app');
 var request = require('supertest')(app);
 var should = require('should');
 var mongoose = require('mongoose');
