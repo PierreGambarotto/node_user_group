@@ -1,0 +1,8 @@
+form(action="/people/" + user.login, method="post", id= 'edit_user_' + user.login)
+  label(for="user[lastname]") Nom
+  input(name="user[lastname]", value=user.lastname, type="text")
+  label(for="user[firstname]") Prénom
+  input(name="user[firstname]", value=user.firstname, type="text")
+  input(type="submit", value="Appliquer les modifications")
+
+

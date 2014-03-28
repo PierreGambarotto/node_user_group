@@ -1,3 +1,5 @@
+require('../../../lib/object')
+
 function inspect(obj, depth){
   if (depth === undefined) depth = 1
   console.log(">>>> " + require('util').inspect(obj, {depth: depth}))
@@ -44,6 +46,17 @@ module.exports = function(parent) {
       res.render('new', { user: new User()})
     },
 
+    // GET /people/:login/edit
+    edit: function(req, res) {
+      User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
+        if (user) {
+          res.render('edit', {user: user})
+        } else {
+          res.send(404, "User not found")
+        }
+
+      })
+    },
     // POST /people
     create: function(req, res){
       User.create(req.body.user, function(err,user){
@@ -74,8 +87,30 @@ module.exports = function(parent) {
           })
         }
       })
-    }
+    },
 
+    // POST /people/:login
+    // this sould be a PUT or a PATCH !
+    update: function(req, res){
+      var mods = {}
+      // select only firstname and lastname modification
+      mods = req.body.user.filter('lastname', 'firstname')
+      User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
+        if (user) {
+          User.update({login: req.params.login}, mods, function(err, user){
+            if (err) {
+              next(err)
+            } else {
+              res.redirect('/people/' + req.params.login)
+            }
+          })
+        } else {
+          res.send(404, "User not found")
+        }
+
+      })
+     
+    }
   }
 
   var express = require('express')
