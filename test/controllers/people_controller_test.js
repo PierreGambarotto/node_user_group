@@ -51,91 +51,36 @@ describe('people controller', function(){
   describe('#show', function(){
     beforeEach(function(){
       req.params.login = 'bob'
+      req.user = {login: 'bob', firstname: 'f', lastname: 'l', password: 'do not show'}
     })
-    it('searches the user whose login is given in params', function(){
-      var mock = sinon.mock(User)
-      mock.expects('findOne').once().withArgs({ login: req.params.login})
-      controller.show(req, res)
-      mock.verify()
-      mock.restore()
-    })
-    it('only ask for login, firstname and lastname', function(){
-      var mock = sinon.mock(User)
-      mock.expects('findOne').once().withArgs({ login: req.params.login}, 'login firstname lastname')
+    it('only displays login, firstname and lastname', function(){
+      var mock = sinon.mock(req.user)
+      mock.expects('filter').once().withExactArgs('login', 'firstname', 'lastname')
       controller.show(req, res)
       mock.verify()
       mock.restore()
 
     })
-    context('when the user is found', function(){
-      it('renders the show view with the user', function(){
-        var stub = sinon.stub(User, 'findOne')
-        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
-        stub.callsArgWith(2, undefined, user)
-        controller.show.should_render('show', {user: user}, req)
-        stub.restore()
-      })
-    })
-    context('when the user in not found', function(){
-      it('returns a 404 error', function(){
-        var stub = sinon.stub(User, 'findOne')
-        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
-        stub.callsArgWith(2, undefined, undefined)
-        var mock = sinon.mock(res)
-        mock.expects('send').once().withArgs(404)
-        controller.show(req, res)
-        mock.verify()
-        mock.restore()
-        stub.restore()
-        
-
-      })
+    it('renders the show view with the user', function(){
+      controller.show.should_render('show', {user: {login: 'bob', firstname: 'f', lastname: 'l'} }, req)
     })
   })
   describe('#edit', function(){
+    var filtered_user = {login: 'bob', firstname: 'f', lastname: 'l'}
     beforeEach(function(){
       req.params.login = 'bob'
+      req.user = {login: 'bob', firstname: 'f', lastname: 'l', password: 'do not show'}
     })
-    it('searches the user whose login is given in params', function(){
-      var mock = sinon.mock(User)
-      mock.expects('findOne').once().withArgs({ login: req.params.login})
-      controller.edit(req, res)
+    it('only displays login, firstname and lastname', function(){
+      var mock = sinon.mock(req.user)
+      mock.expects('filter').once().withExactArgs('firstname', 'lastname')
+      controller.show(req, res)
       mock.verify()
       mock.restore()
     })
-    it('only ask for login, firstname and lastname', function(){
-      var mock = sinon.mock(User)
-      mock.expects('findOne').once().withArgs({ login: req.params.login}, 'login firstname lastname')
-      controller.edit(req, res)
-      mock.verify()
-      mock.restore()
-
+    it('renders the edit view with the user', function(){
+      controller.edit.should_render('edit', {user: filtered_user}, req)
     })
-    context('when the user is found', function(){
-      it('renders the edit view with the user', function(){
-        var stub = sinon.stub(User, 'findOne')
-        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
-        stub.callsArgWith(2, undefined, user)
-        controller.edit.should_render('edit', {user: user}, req)
-        stub.restore()
-      })
-    })
-    context('when the user in not found', function(){
-      it('returns a 404 error', function(){
-        var stub = sinon.stub(User, 'findOne')
-        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
-        stub.callsArgWith(2, undefined, undefined)
-        var mock = sinon.mock(res)
-        mock.expects('send').once().withArgs(404)
-        controller.edit(req, res)
-        mock.verify()
-        mock.restore()
-        stub.restore()
-        
-
-      })
-    })
-
   })  
   describe('#update', function(){
     beforeEach(function(){
@@ -143,68 +88,27 @@ describe('people controller', function(){
       req.body = {}
       req.body.user = { lastname: 'modl', firstname: 'modf', other: 'not wanted param' }
     })
-    it('searches the user whose login is given in params', function(){
-      var mock = sinon.mock(User)
-      mock.expects('findOne').once().withArgs({ login: req.params.login})
-      controller.update(req, res)
-      mock.verify()
-      mock.restore()
-    })
-    it('only ask for login, firstname and lastname', function(){
-      var mock = sinon.mock(User)
-      mock.expects('findOne').once().withArgs({ login: req.params.login}, 'login firstname lastname')
+    it('selects valid arguments from request body', function(){
+      var mock = sinon.mock(req.body.user)
+      mock.expects('filter').withExactArgs('firstname', 'lastname')
       controller.update(req, res)
       mock.verify()
       mock.restore()
 
     })
-    context('when the user is found', function(){
-      var stub, stub2
-      beforeEach(function(){
-        stub = sinon.stub(User, 'findOne')
-        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
-        stub.callsArgWith(2, undefined, user)
-  
-      })
-      it('selects valid arguments from request body', function(){
-        var mock = sinon.mock(req.body.user)
-        mock.expects('filter').withExactArgs('firstname', 'lastname')
-        controller.update(req, res)
-        mock.verify()
-        mock.restore()
-
-      })
-      it('updates the user with arguments in body', function(){
-        var mock = sinon.mock(User)
-        mock.expects('update').withArgs({login: req.params.login}, {lastname: req.body.user.lastname, firstname: req.body.user.firstname})
-        controller.update(req, res)     
-        mock.verify()
-        mock.restore()
-      })
-      it('redirect to the show view of the user', function(){
-        stub2 = sinon.stub(User, 'update')
-        stub2.callsArgWith(2, undefined, {firstname: 'modf', lastname: 'modl'})
-        controller.update.should_redirect_to('/people/'+ req.params.login, req)
-        stub2.restore()
-      })
-      afterEach(function(){
-        stub.restore()
-      })
+    it('updates the user with arguments in body', function(){
+      var mock = sinon.mock(User)
+      mock.expects('update').withArgs({login: req.params.login}, {lastname: req.body.user.lastname, firstname: req.body.user.firstname})
+      controller.update(req, res)     
+      mock.verify()
+      mock.restore()
     })
-    context('when the user in not found', function(){
-      it('returns a 404 error', function(){
-        var stub = sinon.stub(User, 'findOne')
-        var user = {login: 'userid', firstname: 'f', lastname: 'l'}
-        stub.callsArgWith(2, undefined, undefined)
-        var mock = sinon.mock(res)
-        mock.expects('send').once().withArgs(404)
-        controller.update(req, res)
-        mock.verify()
-        mock.restore()
-        stub.restore()
-        
+    it('redirect to the show view of the user', function(){
+      var stub = sinon.stub(User, 'update')
+      stub.callsArgWith(2, undefined, {firstname: 'modf', lastname: 'modl'})
+      controller.update.should_redirect_to('/people/'+ req.params.login, req)
+      stub.restore()
 
-      })
     })
   })
   describe('#new', function(){

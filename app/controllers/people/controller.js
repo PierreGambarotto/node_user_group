@@ -24,9 +24,11 @@ module.exports = function(parent) {
 
     // GET /people/:login
     show: function(req, res) {
+      console.log(req.user)
+      console.log(req.user.filter('login', 'firstname', 'lastname'))
       res.format({
         html: function(){
-          res.render('show', {user: req.user})
+          res.render('show', {user: req.user.filter('login', 'firstname', 'lastname')})
         },
         json: function(){
           res.json(req.user)
@@ -41,7 +43,7 @@ module.exports = function(parent) {
 
     // GET /people/:login/edit
     edit: function(req, res) {
-      res.render('edit', {user: req.user})
+      res.render('edit', {user: req.user.filter('login', 'firstname', 'lastname')})
     },
     // POST /people
     create: function(req, res){
