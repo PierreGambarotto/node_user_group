@@ -1,4 +1,5 @@
 form(action="/people/" + user.login, method="post", id= 'edit_user_' + user.login)
+  input(type="hidden", name="_method", value = "patch")
   label(for="user[lastname]") Nom
   input(name="user[lastname]", value=user.lastname, type="text")
   label(for="user[firstname]") Prénom

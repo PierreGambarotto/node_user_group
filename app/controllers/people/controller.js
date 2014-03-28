@@ -89,8 +89,7 @@ module.exports = function(parent) {
       })
     },
 
-    // POST /people/:login
-    // this sould be a PUT or a PATCH !
+    // PATCH /people/:login
     update: function(req, res){
       var mods = {}
       // select only firstname and lastname modification
@@ -115,10 +114,12 @@ module.exports = function(parent) {
 
   var express = require('express')
   var app = express()
+  var connect = require('connect')
   app.models = parent.models
   controller.app = app
   app.use(express.urlencoded())
   app.use(express.json())
+  app.use(connect.methodOverride())
   app.set('views', __dirname + '/views')
   parent.use(app)
   return controller

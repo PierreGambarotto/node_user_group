@@ -5,7 +5,7 @@ module.exports = function(app){
   route('get', '/people/:login', 'people', 'show')
   route('get', '/people/:login/edit', 'people', 'edit')
   route('post', '/people', 'people', 'create')
-  route('post', '/people/:login', 'people', 'update')
+  route('patch', '/people/:login', 'people', 'update')
 
   function route(verb, path, controller, method){
     app.controllers[controller].app[verb](path, app.controllers[controller][method])
