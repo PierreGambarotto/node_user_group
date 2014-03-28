@@ -24,20 +24,13 @@ module.exports = function(parent) {
 
     // GET /people/:login
     show: function(req, res) {
-      User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
-        if (user) {
-          res.format({
-            html: function(){
-              res.render('show', {user: user})
-            },
-            json: function(){
-              res.json(user)
-            }
-          })
-        } else {
-          res.send(404, "User not found")
+      res.format({
+        html: function(){
+          res.render('show', {user: req.user})
+        },
+        json: function(){
+          res.json(req.user)
         }
-
       })
     },
 
@@ -48,14 +41,7 @@ module.exports = function(parent) {
 
     // GET /people/:login/edit
     edit: function(req, res) {
-      User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
-        if (user) {
-          res.render('edit', {user: user})
-        } else {
-          res.send(404, "User not found")
-        }
-
-      })
+      res.render('edit', {user: req.user})
     },
     // POST /people
     create: function(req, res){
@@ -94,21 +80,13 @@ module.exports = function(parent) {
       var mods = {}
       // select only firstname and lastname modification
       mods = req.body.user.filter('lastname', 'firstname')
-      User.findOne({login: req.params.login}, 'login firstname lastname', function(err, user){
-        if (user) {
-          User.update({login: req.params.login}, mods, function(err, user){
-            if (err) {
-              next(err)
-            } else {
-              res.redirect('/people/' + req.params.login)
-            }
-          })
+      User.update({login: req.params.login}, mods, function(err, user){
+        if (err) {
+          next(err)
         } else {
-          res.send(404, "User not found")
+          res.redirect('/people/' + req.params.login)
         }
-
       })
-     
     }
   }
 
@@ -121,6 +99,18 @@ module.exports = function(parent) {
   app.use(express.json())
   app.use(connect.methodOverride())
   app.set('views', __dirname + '/views')
+  app.param('login', function(req, res, next, id){
+    User.findOne({login: id}, function(err, user){
+      if(err) {
+        next(err)
+      } else if (user) {
+        req.user = user
+        next()
+      } else {
+        res.send(404, "User not found")
+      }
+    })
+  })
   parent.use(app)
   return controller
 }
