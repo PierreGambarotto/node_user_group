@@ -24,8 +24,6 @@ module.exports = function(parent) {
 
     // GET /people/:login
     show: function(req, res) {
-      console.log(req.user)
-      console.log(req.user.filter('login', 'firstname', 'lastname'))
       res.format({
         html: function(){
           res.render('show', {user: req.user.filter('login', 'firstname', 'lastname')})
@@ -106,7 +104,7 @@ module.exports = function(parent) {
       if(err) {
         next(err)
       } else if (user) {
-        req.user = user
+        req.user = user.toObject()
         next()
       } else {
         res.send(404, "User not found")
