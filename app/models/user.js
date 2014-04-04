@@ -23,7 +23,7 @@ var User = mongoose.model('User', userSchema);
 User.schema.path('login').validate(login_is_unique, "Login is already taken");
 
 function login_is_unique(login,callback) {
-  User.find({login: login}, function(err, logins){
+  User.find({login: login, _id: { $neq: this.id}}, function(err, logins){
    callback(err || logins.length === 0);
   });
 }
