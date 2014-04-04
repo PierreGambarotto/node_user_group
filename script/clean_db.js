@@ -11,9 +11,11 @@ app.set('db_url', 'mongodb://localhost/' + app.get('db'))
 app.models = {}
 var models = app.models
 fs.readdirSync(__dirname + '/../app/models').forEach(function(model_file){
-  if (path.extname(model_file) === '.js') 
+  if (path.extname(model_file) === '.js') {
+    console.log(model_file)
     var model = require(__dirname + '/../app/models/' + model_file)
     models[model.modelName] = model 
+  }
 })
 // database connection
 mongoose.connect(app.get('db_url'), function(err){

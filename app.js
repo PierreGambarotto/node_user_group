@@ -18,9 +18,10 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.models = {}
 var models = app.models
 fs.readdirSync(__dirname + '/app/models').forEach(function(model_file){
-  if (path.extname(model_file) === '.js') 
+  if (path.extname(model_file) === '.js') {
     var model = require(__dirname + '/app/models/' + model_file)
     models[model.modelName] = model 
+  }
 })
 // controllers
 app.controllers = {}
