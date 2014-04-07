@@ -9,6 +9,7 @@ app.models.User.create = function(){}
 app.models.User.find = function(){}
 app.models.User.findOne = function(){}
 app.models.User.update = function(){}
+app.models.User.findByIdAndUpdateWithGroups = function(){}
 
 var User = app.models.User
 var controller = require('../../app/controllers/people/controller')(app)
@@ -53,16 +54,8 @@ describe('people controller', function(){
       req.params.login = 'bob'
       req.user = {login: 'bob', firstname: 'f', lastname: 'l', password: 'do not show'}
     })
-    it('only displays login, firstname and lastname', function(){
-      var mock = sinon.mock(req.user)
-      mock.expects('filter').once().withExactArgs('login', 'firstname', 'lastname')
-      controller.show(req, res)
-      mock.verify()
-      mock.restore()
-
-    })
     it('renders the show view with the user', function(){
-      controller.show.should_render('show', {user: {login: 'bob', firstname: 'f', lastname: 'l'} }, req)
+      controller.show.should_render('show', {user: req.user }, req)
     })
   })
   describe('#edit', function(){
@@ -86,25 +79,18 @@ describe('people controller', function(){
     beforeEach(function(){
       req.params.login = 'bob'
       req.body = {}
-      req.body.user = { lastname: 'modl', firstname: 'modf', other: 'not wanted param' }
-    })
-    it('selects valid arguments from request body', function(){
-      var mock = sinon.mock(req.body.user)
-      mock.expects('filter').withExactArgs('firstname', 'lastname')
-      controller.update(req, res)
-      mock.verify()
-      mock.restore()
-
+      req.body.user = { lastname: 'modl', firstname: 'modf', groups: 'groups2' }
+      req.user = {_id: 42,login: 'bob', firstname: 'f', lastname: 'l', password: 'do not show'}
     })
     it('updates the user with arguments in body', function(){
       var mock = sinon.mock(User)
-      mock.expects('update').withArgs({login: req.params.login}, {lastname: req.body.user.lastname, firstname: req.body.user.firstname})
+      mock.expects('findByIdAndUpdateWithGroups').withArgs(req.user._id,req.body.user)
       controller.update(req, res)     
       mock.verify()
       mock.restore()
     })
     it('redirect to the show view of the user', function(){
-      var stub = sinon.stub(User, 'update')
+      var stub = sinon.stub(User, 'findByIdAndUpdateWithGroups')
       stub.callsArgWith(2, undefined, {firstname: 'modf', lastname: 'modl'})
       controller.update.should_redirect_to('/people/'+ req.params.login, req)
       stub.restore()

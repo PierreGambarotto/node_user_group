@@ -155,20 +155,89 @@ describe('an User with groups', function(){
   })
   describe('User#get_subscription', function(){
     it('returns an object with true or false for each group name', function(done){
-      user.get_subscription(function(subs){
+      user.get_subscription(function(err,subs){
+        should.not.exist(err)
         subs.should.eql({ group1: true, group2: true, group3: false})
         done()
+      })
+    })
+    it('returns the same result if the user has populated groups', function(done){
+      user.populate('groups', function(err, res){
+        if (err) done(err)
+        res.get_subscription(function(err, subs){
+          should.not.exist(err)
+          subs.should.eql({ group1: true, group2: true, group3: false})
+          done()
+        })
       })
     })
   })
   describe('User#set_subscription', function(){
     it('sets groups to the given list', function(done){
       user.set_subscription(['group1', 'group3'], function(err, res){
-        res.get_subscription(function(subs){
+        res.get_subscription(function(err,subs){
+          should.not.exist(err)
           subs.should.eql({ group1: true, group2: false, group3: true})
           done()
         })
       })
     })
+    it('also accepts a string argument for only one group', function(done){
+      user.set_subscription('group1', function(err, res){
+        res.get_subscription(function(err, subs){
+          should.not.exist(err)
+          subs.should.eql({ group1: true, group2: false, group3: false})
+          done()
+        })
+      })
+
+    })
+  })
+  describe('User.findByIdAndUpdateWithGroups', function(){
+    var mods
+    beforeEach(function(){
+      mods = { lastname: 'modl', firstname: 'modf', other: 'not wanted param', groups: [ 'group1', 'group3' ] }
+      user.groups = []
+      user.set_subscription = function(){}
+    })
+    it('calls findByIdAndUpdate with firstname and lastname', function(done){
+      var mock = sinon.mock(User)
+      var expectation = mock.expects('findByIdAndUpdate')
+      expectation.withArgs(user.id, {lastname: mods.lastname, firstname: mods.firstname})
+      expectation.callsArgWith(2, undefined, user)
+      var stub = sinon.stub(user, 'set_subscription')
+      stub.callsArgWith(1, user)
+      User.findByIdAndUpdateWithGroups(user.id,mods, function(err,res){
+        mock.verify()
+        mock.restore()
+        stub.restore()
+        done()
+      })
+    })
+    it('calls set_subscription on the result of findByIdAndUpdate', function(done){
+      var stub = sinon.stub(User, 'findByIdAndUpdate')
+      user.lastname = mods.lastname
+      user.firstname = mods.firstname
+      stub.callsArgWith(2, undefined, user)
+      var mock = sinon.mock(user)
+      mock.expects('set_subscription').withArgs(mods.groups).callsArgWith(1, user)
+      User.findByIdAndUpdateWithGroups(user.id,mods, function(err, res){
+        mock.verify()
+        mock.restore()
+        stub.restore()
+        done()
+      })
+    })
+    it('updates lastname, firstname and groups', function(done){
+      User.findByIdAndUpdateWithGroups(user.id,mods, function(err, res){
+        res.lastname.should.eql(mods.lastname)
+        res.firstname.should.eql(mods.firstname)
+        res.get_subscription(function(err, subs){
+          subs.should.eql({ group1: true, group2: false, group3: true})
+          done()
+        })
+      })
+    })
+
   })
 })

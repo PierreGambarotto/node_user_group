@@ -1,3 +1,4 @@
+require('../../lib/object')
 var mongoose = require('mongoose');
 
 var Group = require('./group')
@@ -13,16 +14,6 @@ var userSchema = mongoose.Schema({
 
 // instance methods
 userSchema.methods.fullname = function(){ return this.firstname + ' ' + this.lastname;};
-userSchema.methods.set_subscription = function(groups,cb){
-  var self = this
-  self.groups = []
-  Group.find({name: {$in: groups}},'_id', function(err, groups){
-    groups.forEach(function(group){
-      self.groups.push(group.id)
-    })
-    self.save(cb)
-  })
-}
 // retrieve group's subscription
 // cb is called with the result
 // result = { group1: true|false, group2: true|false …}
@@ -31,22 +22,52 @@ userSchema.methods.set_subscription = function(groups,cb){
 userSchema.methods.get_subscription = function(cb){
   var self = this
   Group.find({}, function(err, groups){
-    if (err) throw(err)
+    if (err) return cb(err)
     var subscription = {}
+    var user_groups_ids
+    user_groups_ids = self.populated('groups') || self.groups
+    user_groups_ids = user_groups_ids.map(function(id){return id.toString()})
     groups.forEach(function(group){
-      if (self.groups.indexOf(group.id) != -1){
+      if (user_groups_ids.indexOf(group.id) != -1){
         subscription[group.name] = true
       } else {
         subscription[group.name] = false
       }
     })
-    cb(subscription)
+    cb(null,subscription)
+  })
+}
+userSchema.methods.set_subscription = function(groups,cb){
+  var self = this
+  var groups_to_subscribe
+  self.groups = []
+  if (typeof groups === 'string') {
+    groups_to_subscribe = [ groups ]
+  } else if(typeof groups === 'undefined') {
+    return self.save(cb)
+  } else {
+    groups_to_subscribe = groups
+  }
+  Group.find({name: {$in: groups_to_subscribe}},'_id', function(err, groups){
+    if (err) return cb(err)
+    groups.forEach(function(group){
+      self.groups.push(group.id)
+    })
+    self.save(cb)
   })
 }
 
 // add a static method
-userSchema.static.listAdministartors = function(callback) {
+userSchema.statics.listAdministartors = function(callback) {
   this.find({ admin: true}, callback);
+}
+userSchema.statics.findByIdAndUpdateWithGroups = function(id,modifications,cb){
+  var mods = modifications.filter('firstname', 'lastname')
+  this.model('User').findByIdAndUpdate(id, mods, function(err, res){
+    if (err) throw(err)
+    res.set_subscription(modifications.groups, cb)
+
+  })
 }
 // compile schema to create a model
 var User = mongoose.model('User', userSchema);

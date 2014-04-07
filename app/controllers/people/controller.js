@@ -26,7 +26,7 @@ module.exports = function(parent) {
     show: function(req, res) {
       res.format({
         html: function(){
-          res.render('show', {user: req.user.filter('login', 'firstname', 'lastname')})
+          res.render('show', {user: req.user})
         },
         json: function(){
           res.json(req.user)
@@ -41,7 +41,7 @@ module.exports = function(parent) {
 
     // GET /people/:login/edit
     edit: function(req, res) {
-      res.render('edit', {user: req.user.filter('login', 'firstname', 'lastname')})
+      res.render('edit', {user: req.user})
     },
     // POST /people
     create: function(req, res){
@@ -77,12 +77,9 @@ module.exports = function(parent) {
 
     // PATCH /people/:login
     update: function(req, res){
-      var mods = {}
-      // select only firstname and lastname modification
-      mods = req.body.user.filter('lastname', 'firstname')
-      User.update({login: req.params.login}, mods, function(err, user){
+      User.findByIdAndUpdateWithGroups(req.user._id,req.body.user, function(err, user){
         if (err) {
-          next(err)
+          throw(err)
         } else {
           res.redirect('/people/' + req.params.login)
         }
@@ -100,12 +97,19 @@ module.exports = function(parent) {
   app.use(connect.methodOverride())
   app.set('views', __dirname + '/views')
   app.param('login', function(req, res, next, id){
-    User.findOne({login: id}, function(err, user){
+    User
+    .findOne({login: id}, 'login firstname lastname groups')
+    .populate('groups')
+    .exec(function(err, user){
       if(err) {
         next(err)
       } else if (user) {
-        req.user = user.toObject()
-        next()
+        user.get_subscription(function(err, subscriptions){
+          if (err) next(err)
+          req.user = user.toObject()
+          req.user.subscriptions = subscriptions
+          next()
+        })
       } else {
         res.send(404, "User not found")
       }

@@ -9,4 +9,8 @@ p
   b Login: 
   = user.login
 
+p
+  b groups: 
+  = user.groups.map(function(group){return group.name}).join(', ')
+
 a(href= '/people/' + user.login + '/edit') Édition
