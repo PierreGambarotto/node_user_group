@@ -9,20 +9,9 @@ var mongoose = require('mongoose'),
 ;
 before(function(done){
   // connect to db
+  if (mongoose.connection.db) return done();
   mongoose.connect(dbURI);
-  // remove all documents
-  mongoose.connection.on('open', function(){
-    User.remove(function(err, users){
-      if(err){
-        console.log(err); 
-        throw(err);
-      } else {
-        // console.log('cleaning users from mongo');
-        done();
-      }
-      
-    })
-  })
+  done()
 })
 afterEach(function(done){
   User.remove().exec(done);
@@ -92,14 +81,14 @@ describe('an instance of User', function(){
     valid_user = new User({firstname: 'toto', lastname: 'titi', password: 'passtoto', login: user.login})
     valid_user.save(function(err,u){
       if(err){done(err)} 
-      User.find({login: 'bob'}, function(err, logins){
-        user = new User(user)
-        user.validate(function(err){
-          err.should.have.property('errors')
-          err.errors.should.have.property('login')
-          err.errors.login.should.have.property('message', 'Login is already taken')
-          done()
-        })
+      user = new User(user)
+      user.login = u.login
+      user.validate(function(err){
+        should.exist(err)
+        err.should.have.property('errors')
+        err.errors.should.have.property('login')
+        err.errors.login.should.have.property('message', 'Login is already taken')
+        done()
       })
     })
   })

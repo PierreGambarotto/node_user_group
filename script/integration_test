@@ -6,7 +6,7 @@ exec 6<&-
 NODE_ENV=test node ./app.js &
 sleep 1
 if [ $# -eq 0 ]; then
-  tests=`ls test/integration/ui/*`
+  tests=`ls test/integration/ui/*.js`
 else
   tests=$@
 fi
