@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
     sinon = require('sinon'),
     dbURI = 'mongodb://localhost/node_users_test',
     User = require('../../app/models/user.js')
+    Group = require('../../app/models/group.js')
 ;
 before(function(done){
   // connect to db
@@ -13,8 +14,10 @@ before(function(done){
   mongoose.connect(dbURI);
   done()
 })
-afterEach(function(done){
-  User.remove().exec(done);
+beforeEach(function(done){
+  User.remove().exec(function(){
+    Group.remove().exec(done)
+  })
 })
 
 describe('an instance of User', function(){
@@ -62,6 +65,7 @@ describe('an instance of User', function(){
   })
 })
 
+// validation stuff
 describe('an instance of User', function(){
   var user, valid_user;
   beforeEach(function(){
@@ -104,7 +108,67 @@ describe('an instance of User', function(){
   it('is not valid without a password', function(){
     user.is_invalid_without('password')
   })
+})
 
+// user together with groups
+describe('an User with groups', function(){
+  // creates an user with 2 groups : group1 and group2
+  // user doesn't belong to group3 
+  var user,group1, group2, group3
+  beforeEach(function(done){
+    Group.create({name: 'group1'}, function(err, group){
+      if (err) throw(err)
+      group1 = group
+      done()
+    })
+  })
+  beforeEach(function(done){
+    Group.create({name: 'group2'}, function(err, group){
+      if (err) throw(err)
+      group2 = group
+      done()
+    })
+  })
+  beforeEach(function(done){
+    Group.create({name: 'group3'}, function(err, group){
+      if (err) throw(err)
+      group3 = group
+      done()
+    })
+  })
+  beforeEach(function(done){
+    user = new User({firstname: 'bob', lastname: 'éponge', login: 'bob', password: 'passbob'})
+    user.groups.push(group1)
+    user.groups.push(group2)
+    user.save(function(err, u){
+      if (err) throw(err)
+      done()
+    })
+  })
+  it('has two groups', function(){
+    user.groups.length.should.eql(2)
+  })
 
-
+  it('stores groups as reference', function(){
+    user.groups[0].toString().should.eql(group1.id)
+    user.groups[1].toString().should.eql(group2.id)
+  })
+  describe('User#get_subscription', function(){
+    it('returns an object with true or false for each group name', function(done){
+      user.get_subscription(function(subs){
+        subs.should.eql({ group1: true, group2: true, group3: false})
+        done()
+      })
+    })
+  })
+  describe('User#set_subscription', function(){
+    it('sets groups to the given list', function(done){
+      user.set_subscription(['group1', 'group3'], function(err, res){
+        res.get_subscription(function(subs){
+          subs.should.eql({ group1: true, group2: false, group3: true})
+          done()
+        })
+      })
+    })
+  })
 })
