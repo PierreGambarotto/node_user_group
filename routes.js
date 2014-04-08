@@ -6,9 +6,20 @@ function middleware_test(req, res, next){
   }
   next()
 }
+// middleware to ensure a user is logged in
+function isLoggedIn(req, res, next) {
+  // req.isAuthenticated is given by passport 
+  if (req.isAuthenticated())
+    return next();
+
+  res.redirect('/session/new');
+}
 module.exports = function(app){
+  // authentication
+  route('get', '/session/new', 'auth', 'new')
+  route('post', '/session', 'auth', 'create')
   // user routes
-  route('get', '/people', 'people', 'index', [middleware_test, middleware_test])
+  route('get', '/people', 'people', 'index', [middleware_test, middleware_test, isLoggedIn])
   route('get', '/people/new', 'people', 'new')
   route('get', '/people/:login', 'people', 'show')
   route('get', '/people/:login/edit', 'people', 'edit')

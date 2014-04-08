@@ -10,6 +10,7 @@ module.exports = function(parent) {
   var controller = {
     // GET /people
     index: function(req, res){
+      console.log('authenticated as: ' + req.user)
       User.find(function(err, users){
         res.format({
           html: function(){ 
